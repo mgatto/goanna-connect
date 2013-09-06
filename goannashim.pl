@@ -1,6 +1,7 @@
 #!/usr/bin/perl
  
 use strict;
+use warnings;
 
 use HTTP::Request::Common qw(POST);
 use LWP::UserAgent;
@@ -54,23 +55,38 @@ my $NR;
 my $RCA;
 my $TAS;
 
-GetOptions("PROGRAM=s" => \$PROGRAM, 'EMAIL=s' => \$EMAIL, 'file_type=s' => \$file_type, 'search_field=s' => \$search_field, 'ID_LIST=s' => \$ID_LIST, 'DATABASE=s' => \$DATABASE, 'DATABASE2=s' => \$DATABASE2, 'DATABASE3=s' => \$DATABASE3, 'no_iea=s' => \$no_iea, 'EXPECT=s' => \$EXPECT, 'WORD_SIZE=s' => \$WORD_SIZE,
- 'GAPCOSTS=s' => \$GAPCOSTS, 'DESCRIPTIONS=i' => \$DESCRIPTIONS, 'ALIGNMENTS=i' => \$ALIGNMENTS,
-  'EXP=s' => \$EXP, 'IBA=s' => \$IBA, 'IBD=s'  => \$IBD, 'IC=s' => \$IC, 'IDA=s' => \$IDA, 'IEA=s' => \$IEA, 'IEP=s' => \$IEP, 'IGC=s' => \$IGC, 'IGI=s' => \$IGI, 'IKR=s' => \$IKR, 'IMP=s' => \$IMP, 'IPI=s' => \$IPI, 'IRD=s' => \$IRD, 'ISA=s' => \$ISA, 'ISM=s' => \$ISM, 'ISO=s' => \$ISO, 'ISS=s' => \$ISS, 'NAS=s' => \$NAS, 'ND=s' => \$ND, 'NR=s' => \$NR, 'RCA=s' => \$RCA, 'TAS=s' => \$TAS,
-    'bypass_prg_check=i' => \$bypass_prg_check, 'error=i' => \$error, 'EXPECT=s' => \$EXPECT);
+GetOptions(
+    'PROGRAM=s' => \$PROGRAM, 
+    'EMAIL=s' => \$EMAIL, 
+    'file_type=s' => \$file_type, 
+    'search_field=s' => \$search_field, 
+    'ID_LIST=s' => \$ID_LIST, 
+    'DATABASE=s' => \$DATABASE, 
+    'DATABASE2=s' => \$DATABASE2, 
+    'DATABASE3=s' => \$DATABASE3, 
+    'no_iea=s' => \$no_iea, 
+    'EXPECT=s' => \$EXPECT, 
+    'WORD_SIZE=s' => \$WORD_SIZE,
+    'GAPCOSTS=s' => \$GAPCOSTS, 
+    'DESCRIPTIONS=i' => \$DESCRIPTIONS, 
+    'ALIGNMENTS=i' => \$ALIGNMENTS,
+    # GoAnna codes...
+    'EXP=s' => \$EXP, 'IBA=s' => \$IBA, 'IBD=s'  => \$IBD, 'IC=s' => \$IC, 'IDA=s' => \$IDA, 'IEA=s' => \$IEA, 'IEP=s' => \$IEP, 'IGC=s' => \$IGC, 'IGI=s' => \$IGI, 'IKR=s' => \$IKR, 'IMP=s' => \$IMP, 'IPI=s' => \$IPI, 'IRD=s' => \$IRD, 'ISA=s' => \$ISA, 'ISM=s' => \$ISM, 'ISO=s' => \$ISO, 'ISS=s' => \$ISS, 'NAS=s' => \$NAS, 'ND=s' => \$ND, 'NR=s' => \$NR, 'RCA=s' => \$RCA, 'TAS=s' => \$TAS,
+    'bypass_prg_check=i' => \$bypass_prg_check, 
+    'error=i' => \$error, 
+    'EXPECT=s' => \$EXPECT
+);
 
 my ($request, $content, $filename, $id, $GAP);
 my @hcontent;
 my $ua = LWP::UserAgent->new;
-#
+
 # open output file
 
-#@DATABASE = split(/,/,join(',',$DATABASE));
+open (my $OUT, '>', "GOanna_out.html");
 
-open (OUT, ">GOanna_out.html");
- 
 my $file = join("", $ID_LIST);
- 
+
 my $req = (POST 'http://agbase.hpc.msstate.edu/cgi-bin/tools/GOanna.cgi',
 		Content_Type => 'multipart/form-data',
 		Content	  => [ 'file_type' => "fasta",
@@ -122,7 +138,7 @@ my $req = (POST 'http://agbase.hpc.msstate.edu/cgi-bin/tools/GOanna.cgi',
  $request = $ua->request($req);
  $content = $request->content;
 my $job_id;
-   print OUT $content;
+   print $OUT $content;
 	#$content =~ /job_id\=([a-z0-9]+$)/i;
 	$content =~ /job_id\:\s(\S{6}\S{10})/i;
 	my $job_id = $1;
