@@ -5,7 +5,7 @@ use warnings;
 
 use HTTP::Request::Common qw(POST);
 use LWP::UserAgent;
-use LWP::Simple;
+use LWP::Simple qw/ getstore is_success /;
 use Getopt::Long;
 
 ##These are the necessary command line inputs
@@ -26,7 +26,6 @@ my $DESCRIPTIONS;
 my $ALIGNMENTS;
 my $bypass_prg_check;
 my $error;
-my $EXPECT;
 my $submit;
 
 ##Below are all of the evidence codes which GOanna supports. They must be passed explicitly.
@@ -53,6 +52,16 @@ my $ND;
 my $NR;
 my $RCA;
 my $TAS;
+
+#use Getopt::Long::Descriptive;
+#my ($opt, $usage) = describe_options(
+#  'goannashim %o <some-arg>',
+#  [ 'server|s=s', "the server to connect to", { required => 1  } ],
+#  [ 'port|p=i',   "the port to connect to",   { default  => 79 } ],
+#  [],
+#  [ 'verbose|v',  "print extra stuff"            ],
+#  [ 'help',       "print usage message and exit" ],
+#);
 
 GetOptions(
     'PROGRAM=s' => \$PROGRAM, 
@@ -88,7 +97,6 @@ my $file = join("", $ID_LIST);
 my $req = (POST 'http://agbase.hpc.msstate.edu/cgi-bin/tools/GOanna.cgi',
     Content_Type => 'multipart/form-data',
 	Content => [
-        'file_type' => "fasta",
 		'PROGRAM' => $PROGRAM,
         'EMAIL' => $EMAIL,
         'file_type' =>  $file_type,
@@ -136,14 +144,14 @@ my $req = (POST 'http://agbase.hpc.msstate.edu/cgi-bin/tools/GOanna.cgi',
 $request = $ua->request($req);
 $content = $request->content;
 
-my $job_id;
 print $OUT $content;
 
 $content =~ /job_id\:\s(\S{6}\S{10})/i;
+
 my $job_id = $1;
 my $req_two;
-my $out_url = join( "", "http://www.agbase.msstate.edu/tmp/GOAL/", $job_id, '.zip');
-my $out_filename = join( "", $job_id, ".zip");
+my $out_url = join("", "http://www.agbase.msstate.edu/tmp/GOAL/", $job_id, '.zip');
+my $out_filename = join("", $job_id, ".zip");
 
 #-- fetch the zip and save it as perlhowto.zip
 my $status = getstore($out_url, $out_filename);
@@ -152,14 +160,14 @@ my $initwait = 10;
 my $totalwait = 0;
 if (defined $job_id) {
 	until ( is_success($status) ) {
-		print "Error downloading file: $status\n";
+		print "Error downloading file '$out_filename':$status\n";
 		print "Trying again in $initwait seconds\n";
 		sleep($initwait);
-		$initwait = $initwait*1.2;
+		$initwait = $initwait * 1.2;
 		if ($initwait > $maxwait) {
 			$initwait=$maxwait;
         }
-		$totalwait=$totalwait+$initwait;
+		$totalwait=$totalwait + $initwait;
 		$status = getstore($out_url, $out_filename);
 
         if ($totalwait > 36000) {
