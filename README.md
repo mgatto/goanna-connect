@@ -7,7 +7,7 @@ Usage
 Version 2 validates all options, converts some into flags (no more --EXP EXP since its now just --EXP), and sets defaults for others based on the GoAnna form page.
 
 ```bash
-perl goannashim-bis.pl --program blastp --email mgatto@iplantcollaborative.org --type fasta --file t/fixtures/myBov.fa --databases AgBase,9913 --no_iea --EXP --NR --ISS
+perl goanna-client.pl --program blastp --email mgatto@iplantcollaborative.org --type fasta --file t/fixtures/myBov.fa --databases AgBase,9913 --no_iea --EXP --NR --ISS
 ```
 
 Multiple databases up to three may be searched by separating them by commas.
