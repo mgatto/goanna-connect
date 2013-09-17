@@ -3,7 +3,6 @@ use Modern::Perl '2010';
 use HTTP::Request::Common;
 use Furl;
 use Getopt::Long::Descriptive;
-use Data::Dumper;
 
 ## Command-line options
 my ($opt, $usage) = describe_options(
@@ -69,7 +68,6 @@ my ($opt, $usage) = describe_options(
     [ 'bypass_prg_check=i', "", { default => 0 } ],
     [ 'error=i', "", { default => 0 } ],
     ## TODO better to make evidence codes a comma-delimited list for option: '--codes=EXP,IBA'
-    # evidence codes (termed "obsolete" on GoAnna forma page)
     [ 'EXP', "Inferred from Experiment"],
     [ 'IBA', "Inferred from Biological aspect of Ancestor"],
     [ 'IBD', "Inferred from Biological aspect of Descendant"],
@@ -92,7 +90,6 @@ my ($opt, $usage) = describe_options(
     [ 'NR', "Not Recorded"],
     [ 'RCA', "Inferred from Reviewed Computational Analysis"],
     [ 'TAS', "Traceable Author Statement"],
-    #[ 'search_by|s=s', "", {} ],  # equals $search_field
     [ 'help',       "print usage message and exit" ],
 );
 
@@ -103,6 +100,7 @@ my $furl = Furl->new(
 );
 
 my $data = format_options($opt);
+
 # $submission_content contains the job_id, which we need to retrieve the zip file...
 my $submission_content = submit_job($furl, $data); 
 my $results_status = save_results($submission_content, '/path/for/resulting/zipfile');
@@ -120,7 +118,6 @@ sub format_options {
         'PROGRAM' => $opt->program,
         'EMAIL' => $opt->email,
         'file_type' => $opt->type,
-        #'DATABASE' => $opt->databases,
         'MATRIX_NAME' => $opt->matrix,
         'EXPECT' => $opt->expect,
         'no_iea' => $opt->no_iea,
@@ -128,7 +125,7 @@ sub format_options {
         'DESCRIPTIONS' => $opt->descriptions,
         'ALIGNMENTS' => $opt->alignments,
         'GAP_COSTS' => $opt->gap_costs,
-        'IDLIST' => [$opt->file], #my $file = join(",", $opt->file);
+        'IDLIST' => [$opt->file],
         'error' => $opt->error,
         'bypass_prg_check' => $opt->bypass_prg_check,
         'EXP' => ( $opt->can('exp') && $opt->exp ) ? "EXP" : "",
@@ -157,6 +154,7 @@ sub format_options {
         'submit' => 'BLAST'
     ];
 
+    ## Add multiple search databases to POST data
     my @databases = split /,/, $opt->databases;
     foreach my $database (@databases) {            
         push @{$post_data}, 'DATABASE', $database;
@@ -173,6 +171,7 @@ sub submit_job {
     # get options from the formatter
     my $furl = shift;
     my $post_data = shift;
+    #my ($furl, $post_data) = @_;
     
     # POST the data from the command line
     my $req = POST 'http://agbase.hpc.msstate.edu/cgi-bin/tools/GOanna.cgi',
@@ -185,7 +184,6 @@ sub submit_job {
 }
 
 
-### PULL DOWN THE RESULTS ###
 =head2
 
 
@@ -195,7 +193,7 @@ sub save_results {
     my $submission = shift;
     my $save_to_path = shift // '.';    
 
-    #Get the job id and capture the match
+    # Get the job id and capture the match
     $submission =~ /job_id\:\s(\S{6}\S{10})/i;
     my $job_id = $1;    
     
@@ -235,6 +233,4 @@ sub save_results {
         print "The submission failed, likely because of bad parameters\n";
         exit;
     }
-
-
 }
