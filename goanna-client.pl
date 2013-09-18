@@ -33,7 +33,7 @@ my ($opt, $usage) = describe_options(
                 ## Validate a list in a list...
                 my $occurrences = 0;
 
-                my @valid_databases = qw/AgBase uniprot_sprot uniprot_trembl 9913 9031 9615 9823 rice bird fish fungi mammal mouse_chick_human nematode plant/;
+                my @valid_databases = qw/AgBase uniprot_sprot uniprot_swisstrembl uniprot_trembl 9913 9031 9615 9823 rice bird fish fungi mammal mouse_chick_human nematode plant/;
                 my @databases = split /,/, $_[0];
                 foreach my $database (@databases) {            
                     $occurrences++ if scalar( grep { $_ eq $database } @valid_databases );
@@ -120,6 +120,7 @@ sub format_options {
         'file_type' => $opt->type,
         'MATRIX_NAME' => $opt->matrix,
         'EXPECT' => $opt->expect,
+        'FILTER' => ( $opt->can('low_complexity') && $opt->low_complexity ) ? "1" : "",
         'no_iea' => $opt->no_iea,
         'WORD_SIZE' => $opt->word_size,
         'DESCRIPTIONS' => $opt->descriptions,
