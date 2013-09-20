@@ -1,4 +1,5 @@
-#!/usr/bin/env perl
+#!/usr/local2/perl-5.16.2/bin/perl
+
 use Modern::Perl '2010'; 
 use HTTP::Request::Common;
 use Furl;
@@ -61,7 +62,7 @@ my ($opt, $usage) = describe_options(
         default => 'Existence: 11 Extension: 1',
         callbacks => {
             'must be one of' => sub {
-                scalar( grep { $_ eq $_[0] } ["Existence: 9 Extension: 2", "Existence: 8 Extension: 2", "Existence: 7 Extension: 2", "Existence: 11 Extension: 1", "Existence: 12 Extension: 1", "Existence: 10 Extension: 1"])
+                scalar( grep { $_ eq $_[0] } ("Existence: 9 Extension: 2", "Existence: 8 Extension: 2", "Existence: 7 Extension: 2", "Existence: 11 Extension: 1", "Existence: 12 Extension: 1", "Existence: 10 Extension: 1"))
             },
         },
     }],
@@ -80,7 +81,7 @@ my ($opt, $usage) = describe_options(
     [ 'IKR', "Inferred from Key Residues"],
     [ 'IMP', "Inferred from Mutant Phenotype"],
     [ 'IPI', "Inferred from Physical Interaction"],
-    [ 'IRD', "Inferred from Rapid Divergence "],
+    [ 'IRD', "Inferred from Rapid Divergence"],
     [ 'ISA', "Inferred from Sequence Alignment"],
     [ 'ISM', "Inferred from Sequence Model"],
     [ 'ISO', "Inferred from Sequence Orthology"],
@@ -103,7 +104,7 @@ my $data = format_options($opt);
 
 # $submission_content contains the job_id, which we need to retrieve the zip file...
 my $submission_content = submit_job($furl, $data); 
-my $results_status = save_results($submission_content, '/path/for/resulting/zipfile');
+my $results_status = save_results($submission_content);
 die;
 
 =head2 Format Options
@@ -129,6 +130,7 @@ sub format_options {
         'IDLIST' => [$opt->file],
         'error' => $opt->error,
         'bypass_prg_check' => $opt->bypass_prg_check,
+        ## @TODO: ought to wrap $opt-> in eval() per brian d foy: if( my $ref = eval { $obj->can( $method ) } )
         'EXP' => ( $opt->can('exp') && $opt->exp ) ? "EXP" : "",
         'IBA' => ( $opt->can('iba') && $opt->iba ) ? "IBA" : "",
         'IBD' => ( $opt->can('ibd') && $opt->ibd ) ? "IBD" : "",
